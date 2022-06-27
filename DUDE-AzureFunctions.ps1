@@ -46,6 +46,7 @@ param($Timer)
         Endpoint-DUDE Devices North Europe
 
 # Release Notes
+    4.0 - 2022-06-27 - Updated devices to add and devices to remove filter.
     3.0 - 2021-11-17 - Added DeviceFilter to be able to choose between including all Intune and Azure AD devices or all Intune and only Managed Azure AD devices.
     2.0 - 2021-11-16 - Matching users devices based on registeredOwner from Azure AD devices and fallback to userPrincipalName from Intune managedDevices
     1.0 - 2021-10-16 - Initial version
@@ -199,11 +200,11 @@ foreach ($Group in $AllUserGroups) {
                     $DevicesToAdd = $UserGroupMembersDevices
                 }
                 else {
-                    $DevicesToAdd = $UserGroupMembersDevices | Where-Object { ($DeviceGroupMembers.DeviceId -notcontains $_.azureADDeviceId) -and ($DeviceGroupMembers.DeviceId -notcontains $_.deviceId) }
+                    $DevicesToAdd = $UserGroupMembersDevices | Where-Object { ($DeviceGroupMembers.deviceId -notcontains $_.azureADDeviceId) -or ($DeviceGroupMembers.deviceId -notcontains $_.deviceId) }
                 }
  
                 # Get devices to remove
-                $DevicesToRemove = $DeviceGroupMembers | Where-Object { ($UserGroupMembersDevices.azureADDeviceId -notcontains $_.DeviceId) -and ($UserGroupMembersDevices.DeviceId -notcontains $_.DeviceId) -and ($DevicesToAdd.azureADDeviceId -notcontains $_.DeviceId) -and ($DevicesToAdd.azureADDeviceId -notcontains $_.DeviceId) }
+                $DevicesToRemove = $DeviceGroupMembers | Where-Object { ($UserGroupMembersDevices.azureADDeviceId -notcontains $_.deviceId) -and ($UserGroupMembersDevices.deviceId -notcontains $_.deviceId) -and ($DevicesToAdd.azureADDeviceId -notcontains $_.deviceId) -and ($DevicesToAdd.deviceId -notcontains $_.deviceId) }
 
                 # Add devices
                 $DeviceCount = 0
