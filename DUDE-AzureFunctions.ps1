@@ -201,11 +201,11 @@ foreach ($Group in $AllUserGroups) {
                     $DevicesToAdd = $UserGroupMembersDevices
                 }
                 else {
-                    $DevicesToAdd = $UserGroupMembersDevices | Where-Object { (($_.azureADDeviceId -ne $null) -and ($DeviceGroupMembers.deviceId -notcontains $_.azureADDeviceId)) -or (($_.deviceId -ne $null) -and ($DeviceGroupMembers.deviceId -notcontains $_.deviceId)) }
+                    $DevicesToAdd = $UserGroupMembersDevices | Where-Object { $DeviceGroupMembers.deviceId -notcontains $_.azureADDeviceId -or $DeviceGroupMembers.deviceId -notcontains $_.deviceId }
                 }
  
                 # Get devices to remove
-                $DevicesToRemove = $DeviceGroupMembers | Where-Object { ($UserGroupMembersDevices.azureADDeviceId -notcontains $_.deviceId) -and ($UserGroupMembersDevices.deviceId -notcontains $_.deviceId) -and ($DevicesToAdd.azureADDeviceId -notcontains $_.deviceId) -and ($DevicesToAdd.deviceId -notcontains $_.deviceId) }
+                $DevicesToRemove = $DeviceGroupMembers | Where-Object { $UserGroupMembersDevices.azureADDeviceId -notcontains $_.deviceId -and $UserGroupMembersDevices.deviceId -notcontains $_.deviceId -and $DevicesToAdd.azureADDeviceId -notcontains $_.deviceId -and $DevicesToAdd.deviceId -notcontains $_.deviceId }
 
                 # Add devices
                 $DeviceCount = 0
