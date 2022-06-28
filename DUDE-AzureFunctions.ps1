@@ -46,6 +46,7 @@ param($Timer)
         Endpoint-DUDE Devices North Europe
 
 # Release Notes
+    5.0 - 2022-06-28 - Updated devices to add and devices to remove filter.
     4.0 - 2022-06-27 - Updated devices to add and devices to remove filter.
     3.0 - 2021-11-17 - Added DeviceFilter to be able to choose between including all Intune and Azure AD devices or all Intune and only Managed Azure AD devices.
     2.0 - 2021-11-16 - Matching users devices based on registeredOwner from Azure AD devices and fallback to userPrincipalName from Intune managedDevices
@@ -200,7 +201,7 @@ foreach ($Group in $AllUserGroups) {
                     $DevicesToAdd = $UserGroupMembersDevices
                 }
                 else {
-                    $DevicesToAdd = $UserGroupMembersDevices | Where-Object { ($DeviceGroupMembers.deviceId -notcontains $_.azureADDeviceId) -or ($DeviceGroupMembers.deviceId -notcontains $_.deviceId) }
+                    $DevicesToAdd = $UserGroupMembersDevices | Where-Object { (($_.azureADDeviceId -ne $null) -and ($DeviceGroupMembers.deviceId -notcontains $_.azureADDeviceId)) -or (($_.deviceId -ne $null) -and ($DeviceGroupMembers.deviceId -notcontains $_.deviceId)) }
                 }
  
                 # Get devices to remove
