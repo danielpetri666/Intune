@@ -103,6 +103,7 @@ Write-Output "Found $($Masterlist.UserGroup.Count) UserGroups in Masterlist"
 
 #region Get AllManagedDevices
 $AllManagedDevicesGraph = (Invoke-GraphCall -Uri "https://graph.microsoft.com/beta/deviceManagement/managedDevices?`$select=id,deviceName,userPrincipalName,azureADDeviceId").value
+$AllManagedDevicesGraph = $AllManagedDevicesGraph | Where-Object {$_.azureADDeviceId -ne "00000000-0000-0000-0000-000000000000"}
 if ($AllManagedDevicesGraph.id.Count -eq "0") {
     Write-Error "Could not load AllManagedDevicesGraph" -ErrorAction Stop
 }
