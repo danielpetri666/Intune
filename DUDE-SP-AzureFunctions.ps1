@@ -13,6 +13,7 @@ param($Timer)
     MasterlistID = ID of the list itself.
 
 # Release Notes
+    2.0 - 2022-11-02 - Logging for Intune devices that could not be found in Azure AD
     1.0 - 2022-10-26 - Initial version
 
 #>
@@ -213,16 +214,21 @@ foreach ($Group in $Masterlist) {
                         $DeviceCount++
                         try {
                             $DeviceAddInfo = (Invoke-GraphCall -Uri "https://graph.microsoft.com/beta/devices?`$filter=DeviceID eq '$($Device.AadDeviceId)'&`$select=id,displayName").value
-                            if ($RunLevel -eq "Prod") {
-                                $Body = @{"@odata.id" = "https://graph.microsoft.com/beta/devices/$($DeviceAddInfo.id)" }
-                                Invoke-GraphCall -Uri "https://graph.microsoft.com/beta/groups/$($DeviceGroup.id)/members/`$ref" -Method POST -Body $Body | Out-Null
-                                Write-Output "Device $($DeviceCount) of $($DevicesToAdd.AadDeviceId.count): Added $($DeviceAddInfo.displayName) to $($DeviceGroup.displayName)"
-                            }
-                            elseif ($RunLevel -eq "Debug") {
-                                Write-Output "Device $($DeviceCount) of $($DevicesToAdd.AadDeviceId.count): Would add $($DeviceAddInfo.displayName) to $($DeviceGroup.displayName)"
+                            if ($DeviceAddInfo.id.count -eq "1") {
+                                if ($RunLevel -eq "Prod") {
+                                    $Body = @{"@odata.id" = "https://graph.microsoft.com/beta/devices/$($DeviceAddInfo.id)" }
+                                    Invoke-GraphCall -Uri "https://graph.microsoft.com/beta/groups/$($DeviceGroup.id)/members/`$ref" -Method POST -Body $Body | Out-Null
+                                    Write-Output "Device $($DeviceCount) of $($DevicesToAdd.AadDeviceId.count): Added $($DeviceAddInfo.displayName) to $($DeviceGroup.displayName)"
+                                }
+                                elseif ($RunLevel -eq "Debug") {
+                                    Write-Output "Device $($DeviceCount) of $($DevicesToAdd.AadDeviceId.count): Would add $($DeviceAddInfo.displayName) to $($DeviceGroup.displayName)"
+                                }
+                                else {
+                                    Write-Error "Please specify RunLevel and try again" -ErrorAction Stop
+                                }
                             }
                             else {
-                                Write-Error "Please specify RunLevel and try again" -ErrorAction Stop
+                                Write-Warning "Device $($DeviceCount) of $($DevicesToAdd.AadDeviceId.count): Could not find $($Device.DeviceName) with AadDeviceId $($Device.AadDeviceId) in Azure AD"
                             }
                         }
                         catch {
