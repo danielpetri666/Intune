@@ -63,6 +63,7 @@ param($Timer)
     6.0 - 2023-03-20 - PrimaryUser will only be gathered from Intune.
     7.0 - 2023-05-08 - Added support for administrative units.
     8.0 - 2023-05-11 - Added support for machine tags in defender and variables RunAdminUnits and RunDefender to select if these features are supposed to run or not.
+    9.0 - 2023-10-09 - Resolved an issue when counting $UserGroupMembersManagedDevices
 
 #>
 
@@ -372,7 +373,7 @@ foreach ($UserGroup in $AllUserGroups) {
     else {
         # Get usergroup members managed devices
         $UserGroupMembersManagedDevices = $AllManagedDevicesWithAADObjectAndPrimaryUser | Where-Object { $UserGroupMembers.UserPrincipalName -contains $_.PrimaryUser }
-        if ($UserGroupMembersManagedDevices.id.Count -eq "0") {
+        if ($UserGroupMembersManagedDevices.MdmDeviceId.Count -eq "0") {
             Write-Output "Could not find any UserGroupMembersManagedDevices"
         }
         else {
